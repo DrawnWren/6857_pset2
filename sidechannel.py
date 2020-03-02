@@ -9,7 +9,7 @@ aes = AES()
 URL = "https://courses.csail.mit.edu/6.857/2020/6857_aes.php"
 payload = {"num": "1000"}
 
-more = True
+more = False
 
 if more:
     res = requests.get(url=URL, params=payload)
@@ -26,6 +26,8 @@ if more:
     f.close()
 else:
     tuples = pickle.load(open("save.p", "rb"))
+
+
 
 
 means = [0 for i in range(128)]
@@ -77,7 +79,6 @@ for t in tuples:
 
 
 print("There were {} delayed encryptions".format(delayed))
-print("n is {} means are {}".format(n, means))
 # divide sums to get means
 min = 1
 max = 0
@@ -92,11 +93,12 @@ print("Min and max are {}, {}".format(min, max))
 m_m = sum(means) / len(means)
 print("Mean is {}".format(m_m))
 
+print(means)
 for i in range(128):
     if means[i] > m_m:
-        means[i] = 0
-    else:
         means[i] = 1
+    else:
+        means[i] = 0
 
 print("".join(map(str, means)))
 
@@ -106,13 +108,33 @@ for i in range(16):
 
 print("Guessing key {}".format(bytes))
 
+# testing function
+def serialize_and_deserialize(t):
+    m,cipher,_ = t
+    pt = " ".join(map(str, m))
+    ct = " ".join(map(str, cipher))
+    return (to_bytes(pt), to_bytes(ct), 0)
+
 for (pt, ct, _) in tuples:
     pt = to_bytes(pt)
     ct = to_bytes(ct)
+
+    test = False
+
+    # to test the functionality of my comparations
+    if test:
+        m = list(urandom(16))
+        cipher = aes.encrypt(m, bytes, 16)
+        pt,ct, _ = serialize_and_deserialize((m,cipher,0))
+
     if len(pt) != len(ct):
         print("Length of messages does not match")
 
     res = aes.decrypt(ct, bytes, 16)
     if pt != res:
         print("Got {} instead of {}".format(res, pt))
+        break
+
+    if test:
+        print("Test passed")
         break
