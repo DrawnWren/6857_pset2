@@ -9,7 +9,7 @@ aes = AES()
 URL = "https://courses.csail.mit.edu/6.857/2020/6857_aes.php"
 payload = {"num": "1000"}
 
-more = False
+more = True
 
 if more:
     res = requests.get(url=URL, params=payload)
@@ -79,9 +79,21 @@ for t in tuples:
 print("There were {} delayed encryptions".format(delayed))
 print("n is {} means are {}".format(n, means))
 # divide sums to get means
+min = 1
+max = 0
 for i in range(128):
     means[i] = means[i] / (not_means[i] + means[i])
-    if means[i] < 0.48:
+    if means[i] < min:
+        min = means[i]
+    if means[i] > max:
+        max = means[i]
+
+print("Min and max are {}, {}".format(min, max))
+m_m = sum(means) / len(means)
+print("Mean is {}".format(m_m))
+
+for i in range(128):
+    if means[i] > m_m:
         means[i] = 0
     else:
         means[i] = 1
